@@ -7,6 +7,46 @@ var async = require('async');
 var bodyparser = require("body-parser");
 var feedparser = require('feedparser');
 
+// function to parse url
+var parse = function (url, cb) {
+  var req = request(url);
+  var items = [];
+  var fp = new feedparser({normalize: true, addmeta: false});
+
+  // request error
+  req.on('error', function (err) {
+    return cb("download error " + err);
+  });
+
+  // with finished response
+  req.on('response', function (res) {
+    var stream = this;
+    if (res.statusCode != 200) {
+      return cb("invalid url " + url);
+    } else {
+      stream.pipe(fp);
+    }
+  });
+
+  fp.on('error', function (err) {
+    return cb(url + err);
+  });
+
+  // handle incoming items
+  fp.on('readable', function () {
+    var stream = this;
+    var item;
+
+    while (item = stream.read()) {
+      items.push(item);
+    }
+  });
+
+  fp.on('end', function () {
+    return cb(null, items);
+  });
+};
+
 // iniail app
 var app = express();
 app.use(bodyparser.urlencoded({extended: false}));
@@ -46,43 +86,3 @@ var server = app.listen(80, function () {
   console.log("listening");
 });
 
-// function to parse url
-let parse = function (url, cb) {
-  var req = request(url);
-  var items = [];
-  var fp = new feedparser({normalize: true, addmeta: false});
-
-  // request error
-  req.on('error', function (err) {
-    return cb("download error " + err);
-  });
-
-  // with finished response
-  req.on('response', function (res) {
-    var stream = this;
-    if (res.statusCode != 200) {
-      return cb("invalid url " + url);
-    } else {
-      stream.pipe(fp);
-    }
-  });
-
-  fp.on('error', function (err) {
-    return cb(url + err);
-  });
-
-  // handle incoming items
-  fp.on('readable', function () {
-    var stream = this;
-    var item;
-
-    while (item = stream.read()) {
-      items.push(item);
-    }
-  });
-
-  fp.on('end', function () {
-    return cb(null, items);
-  });
-
-};
