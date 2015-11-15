@@ -42,7 +42,7 @@ app.all("*", function (req, res) {
 });
 
 // run server
-var server = app.listen(8000, function () {
+var server = app.listen(80, function () {
   console.log("listening");
 });
 
