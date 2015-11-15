@@ -1,7 +1,9 @@
 <?php
 
-//definearrays
-$urls = array("http://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml","http://feeds.wired.com/wired/index");
+$urls = array(
+	"http://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml",
+	"http://feeds.wired.com/wired/index"
+);
 $send = json_encode($urls,true);
 
 $ch = curl_init('http://dev.mymuse.com:8000');
