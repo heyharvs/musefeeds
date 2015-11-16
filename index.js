@@ -4,8 +4,9 @@
 var express = require('express');
 var request = require('request');
 var async = require('async');
-var bodyparser = require("body-parser");
+var bodyparser = require('body-parser');
 var feedparser = require('feedparser');
+var _ = require('lodash');
 
 // function to parse url
 var parse = function (url, cb) {
@@ -15,14 +16,14 @@ var parse = function (url, cb) {
 
   // request error
   req.on('error', function (err) {
-    return cb("download error " + err);
+    return cb('download error ' + err);
   });
 
   // with finished response
   req.on('response', function (res) {
     var stream = this;
     if (res.statusCode != 200) {
-      return cb("invalid url " + url);
+      return cb('invalid url ' + url);
     } else {
       stream.pipe(fp);
     }
@@ -53,7 +54,7 @@ app.use(bodyparser.urlencoded({extended: false}));
 app.use(bodyparser.json());
 
 // defind function for route
-app.post("/", function (req, res) {
+app.post('/', function (req, res) {
   if (req.body.length > 0) {
     async.map(req.body, parse, function (err, items) {
       if (err) {
@@ -62,27 +63,22 @@ app.post("/", function (req, res) {
       }
       
       // merge all items in feed
-      var all = [];
-      for (var a = 0; a < items.length; a++) {
-        for (var b = 0; b < items[a].length; b++) {
-          all.push(items[a][b]);
-        }
-      }
-
-      return res.json(all);
+      var all = _.flatten(items);
+      var sorted = _.sortBy(all, 'date').reverse();
+      return res.json(sorted);
     });
   } else {
-    res.send("No urls in post.  Set content-type to json/application and post an array of urNo urls in pot.  Set content-type to json/application and post an array of urls.");
+    res.send('Invalid request.  Check out http://github.com/heyharvs/musefeeds for examples of how to make requests.');
   }
 });
 
-app.all("*", function (req, res) {
+app.all('*', function (req, res) {
   res.status(400);
-  res.send("Invalid request buddy");
+  res.send('Invalid request.  Check out http://github.com/heyharvs/musefeeds for examples of how to make requests.');
 });
 
 // run server
 var server = app.listen(80, function () {
-  console.log("listening");
+  console.log('listening');
 });
 
