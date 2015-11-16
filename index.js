@@ -3,6 +3,7 @@
 // dependencies
 var express = require('express');
 var request = require('request');
+var cachedrequest = require('cached-request')(request);
 var async = require('async');
 var bodyparser = require('body-parser');
 var feedparser = require('feedparser');
@@ -10,7 +11,7 @@ var _ = require('lodash');
 
 // function to parse url
 var parse = function (url, cb) {
-  var req = request(url);
+  var req = cachedrequest({'url': url, ttl: 3600});
   var items = [];
   var fp = new feedparser({normalize: true, addmeta: false});
 

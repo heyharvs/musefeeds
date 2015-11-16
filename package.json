@@ -12,6 +12,7 @@
   "dependencies": {
     "async": "^1.5.0",
     "body-parser": "^1.14.1",
+    "cached-request": "^0.1.4",
     "express": "^4.13.3",
     "feedparser": "^1.1.4",
     "feedreader": "^0.1.1",
